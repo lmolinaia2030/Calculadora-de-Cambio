@@ -78,10 +78,10 @@ export async function getExchangeRates() {
     let euroBcvLastUpdated: string;
     let usdBinanceLastUpdated: string;
 
-    // Comprobar si datetime existe antes de intentar parsear
-    if (usdBcvData?.datetime) {
+    // Comprobar si last_update existe antes de intentar parsear y usar el formato correcto
+    if (usdBcvData?.last_update) {
       try {
-        const usdBcvDate = parse(usdBcvData.datetime, 'yyyy-MM-dd HH:mm:ss', new Date());
+        const usdBcvDate = parse(usdBcvData.last_update, 'dd/MM/yyyy, hh:mm a', new Date(), { locale: es });
         usdBcvLastUpdated = "Última Actualización: " + format(usdBcvDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
       } catch (dateError) {
         console.error("Error formatting USD BCV date:", dateError);
@@ -91,9 +91,9 @@ export async function getExchangeRates() {
       usdBcvLastUpdated = "Última Actualización: Fecha no disponible (API)";
     }
 
-    if (euroBcvData?.datetime) {
+    if (euroBcvData?.last_update) {
       try {
-        const euroBcvDate = parse(euroBcvData.datetime, 'yyyy-MM-dd HH:mm:ss', new Date());
+        const euroBcvDate = parse(euroBcvData.last_update, 'dd/MM/yyyy, hh:mm a', new Date(), { locale: es });
         euroBcvLastUpdated = "Última Actualización: " + format(euroBcvDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
       } catch (dateError) {
         console.error("Error formatting EUR BCV date:", dateError);
