@@ -53,14 +53,15 @@ export async function getExchangeRates() {
     const euroBcvData = await euroBcvResponse.json();
     const usdBinanceData = await usdBinanceResponse.json();
 
-    const usdBcvRate = parseFloat(usdBcvData.price);
-    const euroBcvRate = parseFloat(euroBcvData.price);
+    // Usar optional chaining para acceder a 'price' de forma segura
+    const usdBcvRate = parseFloat(usdBcvData?.price || '0');
+    const euroBcvRate = parseFloat(euroBcvData?.price || '0');
 
     let usdBinanceRate: number;
     if (usdBinanceData && Array.isArray(usdBinanceData.data) && usdBinanceData.data.length > 0) {
       // Extraer y parsear los precios, filtrando cualquier NaN
       const prices = usdBinanceData.data
-        .map((item: any) => parseFloat(item.adv.price))
+        .map((item: any) => parseFloat(item.adv?.price || '0')) // Usar optional chaining aquí también
         .filter((price: number) => !isNaN(price));
 
       if (prices.length > 0) {
@@ -77,21 +78,29 @@ export async function getExchangeRates() {
     let euroBcvLastUpdated: string;
     let usdBinanceLastUpdated: string;
 
-    try {
-      // PyDolarVe devuelve la fecha en formato 'YYYY-MM-DD HH:MM:SS'
-      const usdBcvDate = parse(usdBcvData.datetime, 'yyyy-MM-dd HH:mm:ss', new Date());
-      usdBcvLastUpdated = "Última Actualización: " + format(usdBcvDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
-    } catch (dateError) {
-      console.error("Error formatting USD BCV date:", dateError);
-      usdBcvLastUpdated = "Última Actualización: Fecha no disponible";
+    // Comprobar si datetime existe antes de intentar parsear
+    if (usdBcvData?.datetime) {
+      try {
+        const usdBcvDate = parse(usdBcvData.datetime, 'yyyy-MM-dd HH:mm:ss', new Date());
+        usdBcvLastUpdated = "Última Actualización: " + format(usdBcvDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
+      } catch (dateError) {
+        console.error("Error formatting USD BCV date:", dateError);
+        usdBcvLastUpdated = "Última Actualización: Fecha no disponible";
+      }
+    } else {
+      usdBcvLastUpdated = "Última Actualización: Fecha no disponible (API)";
     }
 
-    try {
-      const euroBcvDate = parse(euroBcvData.datetime, 'yyyy-MM-dd HH:mm:ss', new Date());
-      euroBcvLastUpdated = "Última Actualización: " + format(euroBcvDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
-    } catch (dateError) {
-      console.error("Error formatting EUR BCV date:", dateError);
-      euroBcvLastUpdated = "Última Actualización: Fecha no disponible";
+    if (euroBcvData?.datetime) {
+      try {
+        const euroBcvDate = parse(euroBcvData.datetime, 'yyyy-MM-dd HH:mm:ss', new Date());
+        euroBcvLastUpdated = "Última Actualización: " + format(euroBcvDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
+      } catch (dateError) {
+        console.error("Error formatting EUR BCV date:", dateError);
+        euroBcvLastUpdated = "Última Actualización: Fecha no disponible";
+      }
+    } else {
+      euroBcvLastUpdated = "Última Actualización: Fecha no disponible (API)";
     }
 
     try {
