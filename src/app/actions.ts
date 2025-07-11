@@ -1,14 +1,14 @@
 "use server";
 
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns'; // Importa 'parse' para analizar la fecha
 import { es } from 'date-fns/locale'; // Importa el locale español para date-fns
 
 export async function getBcvRates() {
   try {
-    // Realiza la solicitud a la API de PyDolarVe para el dólar. Revalida cada hora.
-    const usdResponse = await fetch('https://pydolarve.vercel.app/api/v2/dollar', { next: { revalidate: 3600 } });
-    // Realiza la solicitud a la API de PyDolarVe para el euro. Revalida cada hora.
-    const euroResponse = await fetch('https://pydolarve.vercel.app/api/v2/euro', { next: { revalidate: 3600 } });
+    // Realiza la solicitud a la API de PyDolarVe para el dólar BCV. Revalida cada hora.
+    const usdResponse = await fetch('https://pydolarve.org/api/v2/dollar?page=bcv', { next: { revalidate: 3600 } });
+    // Realiza la solicitud a la API de PyDolarVe para el euro BCV. Revalida cada hora.
+    const euroResponse = await fetch('https://pydolarve.org/api/v2/euro?page=bcv', { next: { revalidate: 3600 } });
 
     if (!usdResponse.ok) {
       throw new Error(`Failed to fetch USD rate from API: ${usdResponse.status} ${usdResponse.statusText}`);
@@ -20,16 +20,24 @@ export async function getBcvRates() {
     const usdData = await usdResponse.json();
     const euroData = await euroResponse.json();
 
-    const usdRate = parseFloat(usdData.price);
-    const euroRate = parseFloat(euroData.price);
+    // Acceder a los datos específicos del monitor 'usd' y 'eur'
+    const usdMonitor = usdData.monitors.usd;
+    const euroMonitor = euroData.monitors.eur;
 
-    // La API devuelve la fecha en formato ISO 8601 (ej. "2024-07-11T17:00:00Z").
-    // La formateamos para una visualización amigable.
+    if (!usdMonitor || !euroMonitor) {
+      throw new Error("Could not find USD or EUR monitor data in API response.");
+    }
+
+    const usdRate = parseFloat(usdMonitor.price);
+    const euroRate = parseFloat(euroMonitor.price);
+
     let lastUpdated: string;
     try {
-      // Asumimos que ambas tasas tienen la misma fecha de última actualización o tomamos la del USD.
-      const date = new Date(usdData.last_update);
-      lastUpdated = format(date, "dd 'de' MMMM 'de' yyyy, HH:mm 'VET'", { locale: es });
+      // Usar la fecha de última actualización del monitor USD, que está en un formato más fácil de parsear.
+      // Ejemplo de formato de la API: "11/07/2025, 12:00 AM"
+      const dateString = usdMonitor.last_update;
+      const parsedDate = parse(dateString, "dd/MM/yyyy, hh:mm a", new Date(), { locale: es });
+      lastUpdated = format(parsedDate, "dd 'de' MMMM 'de' yyyy, HH:mm 'VET'", { locale: es });
     } catch (dateError) {
       console.error("Error formatting date from API:", dateError);
       lastUpdated = "Fecha no disponible";
