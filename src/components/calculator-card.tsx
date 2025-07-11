@@ -14,30 +14,26 @@ export function CalculatorCard({ usdToVesRate, usdBinanceRate }: CalculatorCardP
   const initialUsdAmount = "1";
   const [usdAmount, setUsdAmount] = useState<string>(initialUsdAmount);
 
-  // Calcular los valores iniciales en Bolívares para el renderizado del servidor
-  const initialRawVesBcvAmount = parseFloat(initialUsdAmount) * usdToVesRate;
-  const initialRawVesBinanceAmount = parseFloat(initialUsdAmount) * usdBinanceRate;
-
-  // Inicializar los estados de visualización con un formato no dependiente de la configuración regional para el servidor
-  const [displayVesBcvAmount, setDisplayVesBcvAmount] = useState<string>(
-    isNaN(initialRawVesBcvAmount) ? "0,0000" : initialRawVesBcvAmount.toFixed(4).replace('.', ',')
-  );
-  const [displayVesBinanceAmount, setDisplayVesBinanceAmount] = useState<string>(
-    isNaN(initialRawVesBinanceAmount) ? "0,0000" : initialRawVesBinanceAmount.toFixed(4).replace('.', ',')
-  );
+  // Estados para los montos en Bolívares y la diferencia
+  const [displayVesBcvAmount, setDisplayVesBcvAmount] = useState<string>("0,0000");
+  const [displayVesBinanceAmount, setDisplayVesBinanceAmount] = useState<string>("0,0000");
+  const [displayDifference, setDisplayDifference] = useState<string>("0,0000");
 
   useEffect(() => {
     const usd = parseFloat(usdAmount);
     if (!isNaN(usd)) {
       const calculatedRawBcv = usd * usdToVesRate;
       const calculatedRawBinance = usd * usdBinanceRate;
+      const difference = Math.abs(calculatedRawBcv - calculatedRawBinance); // Calcula la diferencia absoluta
 
       // Actualizar displayVesBcvAmount y displayVesBinanceAmount con el formato específico de la configuración regional en el cliente
       setDisplayVesBcvAmount(calculatedRawBcv.toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
       setDisplayVesBinanceAmount(calculatedRawBinance.toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
+      setDisplayDifference(difference.toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 })); // Formatea la diferencia
     } else {
       setDisplayVesBcvAmount("0,0000");
       setDisplayVesBinanceAmount("0,0000");
+      setDisplayDifference("0,0000");
     }
   }, [usdAmount, usdToVesRate, usdBinanceRate]); // Recalcular cuando cualquiera de estas props cambie
 
@@ -82,6 +78,14 @@ export function CalculatorCard({ usdToVesRate, usdBinanceRate }: CalculatorCardP
           </Label>
           <div className="text-4xl font-extrabold mt-2">
             {displayVesBinanceAmount}
+          </div>
+        </div>
+        <div>
+          <Label className="text-lg">
+            Diferencia en Bolívares:
+          </Label>
+          <div className="text-4xl font-extrabold mt-2">
+            {displayDifference}
           </div>
         </div>
       </CardContent>
