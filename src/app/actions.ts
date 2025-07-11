@@ -73,14 +73,34 @@ export async function getExchangeRates() {
       usdBinanceRate = 0; // No hay datos o el formato es incorrecto
     }
 
-    let lastUpdated: string;
+    let usdBcvLastUpdated: string;
+    let euroBcvLastUpdated: string;
+    let usdBinanceLastUpdated: string;
+
     try {
-      // Usar la fecha y hora actual del servidor para la última actualización
-      const now = new Date();
-      lastUpdated = "Última Actualización: " + format(now, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
+      // PyDolarVe devuelve la fecha en formato 'YYYY-MM-DD HH:MM:SS'
+      const usdBcvDate = parse(usdBcvData.datetime, 'yyyy-MM-dd HH:mm:ss', new Date());
+      usdBcvLastUpdated = "Última Actualización: " + format(usdBcvDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
     } catch (dateError) {
-      console.error("Error formatting current date:", dateError);
-      lastUpdated = "Última Actualización: Fecha no disponible";
+      console.error("Error formatting USD BCV date:", dateError);
+      usdBcvLastUpdated = "Última Actualización: Fecha no disponible";
+    }
+
+    try {
+      const euroBcvDate = parse(euroBcvData.datetime, 'yyyy-MM-dd HH:mm:ss', new Date());
+      euroBcvLastUpdated = "Última Actualización: " + format(euroBcvDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
+    } catch (dateError) {
+      console.error("Error formatting EUR BCV date:", dateError);
+      euroBcvLastUpdated = "Última Actualización: Fecha no disponible";
+    }
+
+    try {
+      // Para Binance, usamos la fecha y hora actual del servidor cuando se hizo el curl
+      const now = new Date();
+      usdBinanceLastUpdated = "Última Actualización: " + format(now, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
+    } catch (dateError) {
+      console.error("Error formatting Binance date:", dateError);
+      usdBinanceLastUpdated = "Última Actualización: Fecha no disponible";
     }
 
     // Validar que todas las tasas sean números válidos
@@ -90,12 +110,14 @@ export async function getExchangeRates() {
         usdBcvRate: 0,
         euroBcvRate: 0,
         usdBinanceRate: 0,
-        lastUpdated: "Última Actualización: Datos no válidos de la API",
+        usdBcvLastUpdated: "Última Actualización: Datos no válidos de la API",
+        euroBcvLastUpdated: "Última Actualización: Datos no válidos de la API",
+        usdBinanceLastUpdated: "Última Actualización: Datos no válidos de la API",
       };
     }
 
-    console.log("Tasas obtenidas:", { usdBcvRate, euroBcvRate, usdBinanceRate, lastUpdated });
-    return { usdBcvRate, euroBcvRate, usdBinanceRate, lastUpdated };
+    console.log("Tasas obtenidas:", { usdBcvRate, euroBcvRate, usdBinanceRate, usdBcvLastUpdated, euroBcvLastUpdated, usdBinanceLastUpdated });
+    return { usdBcvRate, euroBcvRate, usdBinanceRate, usdBcvLastUpdated, euroBcvLastUpdated, usdBinanceLastUpdated };
 
   } catch (error: any) {
     console.error("Error al obtener datos de la API:", error);
@@ -103,7 +125,9 @@ export async function getExchangeRates() {
       usdBcvRate: 0,
       euroBcvRate: 0,
       usdBinanceRate: 0,
-      lastUpdated: `Última Actualización: Error de conexión: ${error.message || 'No se pudo conectar a la API.'}`,
+      usdBcvLastUpdated: `Última Actualización: Error de conexión: ${error.message || 'No se pudo conectar a la API.'}`,
+      euroBcvLastUpdated: `Última Actualización: Error de conexión: ${error.message || 'No se pudo conectar a la API.'}`,
+      usdBinanceLastUpdated: `Última Actualización: Error de conexión: ${error.message || 'No se pudo conectar a la API.'}`,
     };
   }
 }

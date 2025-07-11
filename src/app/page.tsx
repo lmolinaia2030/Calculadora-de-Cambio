@@ -5,7 +5,7 @@ import { CalculadoraBsToBCV } from "@/components/calculadora-bs-to-bcv";
 import { getExchangeRates } from "@/app/actions";
 
 export default async function Home() {
-  const { usdBcvRate, euroBcvRate, usdBinanceRate, lastUpdated } = await getExchangeRates();
+  const { usdBcvRate, euroBcvRate, usdBinanceRate, usdBcvLastUpdated, euroBcvLastUpdated, usdBinanceLastUpdated } = await getExchangeRates();
 
   return (
     <div className="grid grid-rows-[1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -20,21 +20,21 @@ export default async function Home() {
               currencyFrom="USD"
               currencyTo="VES"
               rate={usdBcvRate}
-              lastUpdated={lastUpdated}
+              lastUpdated={usdBcvLastUpdated}
             />
             <ExchangeRateCard
               title="Tasa de Dólar Binance"
               currencyFrom="USD"
               currencyTo="VES"
               rate={usdBinanceRate}
-              lastUpdated={lastUpdated}
+              lastUpdated={usdBinanceLastUpdated}
             />
             <ExchangeRateCard
               title="Tasa de Euro BCV"
               currencyFrom="EUR"
               currencyTo="VES"
               rate={euroBcvRate}
-              lastUpdated={lastUpdated}
+              lastUpdated={euroBcvLastUpdated}
             />
           </div>
           <div className="flex flex-col gap-4">
