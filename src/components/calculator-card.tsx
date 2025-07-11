@@ -1,0 +1,63 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+interface CalculatorCardProps {
+  usdToVesRate: number;
+}
+
+export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
+  const [usdAmount, setUsdAmount] = useState<string>("10");
+  const [vesAmount, setVesAmount] = useState<string>("");
+
+  useEffect(() => {
+    const usd = parseFloat(usdAmount);
+    if (!isNaN(usd)) {
+      setVesAmount((usd * usdToVesRate).toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
+    } else {
+      setVesAmount("");
+    }
+  }, [usdAmount, usdToVesRate]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Permitir solo números y un único punto decimal
+    if (/^\d*\.?\d*$/.test(value) || value === "") {
+      setUsdAmount(value);
+    }
+  };
+
+  return (
+    <Card className="w-full max-w-md bg-gradient-card text-white rounded-xl shadow-lg">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-2xl font-bold">Calculadora</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div>
+          <Label htmlFor="usd-input" className="text-lg">
+            Ingresa el monto en dólares:
+          </Label>
+          <Input
+            id="usd-input"
+            type="text"
+            value={usdAmount}
+            onChange={handleInputChange}
+            className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:ring-white focus:border-white"
+            placeholder="0.00"
+          />
+        </div>
+        <div>
+          <Label className="text-lg">
+            equivalente en Bolívares:
+          </Label>
+          <div className="text-4xl font-extrabold mt-2">
+            {vesAmount || "0,0000"}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

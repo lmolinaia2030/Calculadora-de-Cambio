@@ -87,7 +87,10 @@ export default {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  		},
+        backgroundImage: {
+            'gradient-card': 'linear-gradient(to right, hsl(var(--card-gradient-start)), hsl(var(--card-gradient-end)))',
+        },
   	}
   },
   plugins: [require("tailwindcss-animate")],
