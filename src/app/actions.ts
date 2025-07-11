@@ -31,10 +31,10 @@ export async function getBcvRates() {
       // Ejemplo de formato de la API: "11/07/2025, 12:00 AM"
       const dateString = usdData.last_update;
       const parsedDate = parse(dateString, "dd/MM/yyyy, hh:mm a", new Date(), { locale: es });
-      lastUpdated = format(parsedDate, "dd 'de' MMMM 'de' yyyy, HH:mm 'VET'", { locale: es });
+      lastUpdated = "Última Actualización: " + format(parsedDate, "dd 'de' MMMM 'de' yyyy, HH:mm 'VET'", { locale: es });
     } catch (dateError) {
       console.error("Error formatting date from API:", dateError);
-      lastUpdated = "Fecha no disponible";
+      lastUpdated = "Última Actualización: Fecha no disponible";
     }
 
     // Validar que las tasas sean números válidos
@@ -43,7 +43,7 @@ export async function getBcvRates() {
       return {
         usdRate: 0,
         euroRate: 0,
-        lastUpdated: "Datos no válidos de la API",
+        lastUpdated: "Última Actualización: Datos no válidos de la API",
       };
     }
 
@@ -55,7 +55,7 @@ export async function getBcvRates() {
     return {
       usdRate: 0,
       euroRate: 0,
-      lastUpdated: `Error de conexión: ${error.message || 'No se pudo conectar a la API.'}`,
+      lastUpdated: `Última Actualización: Error de conexión: ${error.message || 'No se pudo conectar a la API.'}`,
     };
   }
 }
