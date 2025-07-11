@@ -31,7 +31,8 @@ export async function getBcvRates() {
       // Ejemplo de formato de la API: "11/07/2025, 12:00 AM"
       const dateString = usdData.last_update;
       const parsedDate = parse(dateString, "dd/MM/yyyy, hh:mm a", new Date(), { locale: es });
-      lastUpdated = "Última Actualización: " + format(parsedDate, "dd 'de' MMMM 'de' yyyy, HH:mm 'VET'", { locale: es });
+      // Cambiado el formato de salida para usar hh:mm a (12 horas con AM/PM)
+      lastUpdated = "Última Actualización: " + format(parsedDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
     } catch (dateError) {
       console.error("Error formatting date from API:", dateError);
       lastUpdated = "Última Actualización: Fecha no disponible";
