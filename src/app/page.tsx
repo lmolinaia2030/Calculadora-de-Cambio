@@ -2,10 +2,10 @@ import { MadeWithDyad } from "@/components/made-with-dyad";
 import { ExchangeRateCard } from "@/components/exchange-rate-card";
 import { CalculatorCard } from "@/components/calculator-card";
 import { ReverseCalculatorCard } from "@/components/reverse-calculator-card";
-import { getBcvRates } from "@/app/actions"; // Importa la Server Action
+import { getExchangeRates } from "@/app/actions"; // Importa la Server Action actualizada
 
-export default async function Home() { // Marca la función como async
-  const { usdRate, euroRate, lastUpdated } = await getBcvRates(); // Llama a la Server Action
+export default async function Home() {
+  const { usdBcvRate, euroBcvRate, usdBinanceRate, lastUpdated } = await getExchangeRates(); // Llama a la Server Action y desestructura la nueva tasa
 
   return (
     <div className="grid grid-rows-[1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -19,27 +19,34 @@ export default async function Home() { // Marca la función como async
               title="Tasa de Dólar BCV"
               currencyFrom="USD"
               currencyTo="VES"
-              rate={usdRate} // Usa la tasa obtenida
-              lastUpdated={lastUpdated} // Usa la fecha obtenida
+              rate={usdBcvRate}
+              lastUpdated={lastUpdated}
+            />
+            <ExchangeRateCard
+              title="Tasa de Dólar Binance" // Nueva tarjeta para Binance
+              currencyFrom="USD"
+              currencyTo="VES"
+              rate={usdBinanceRate}
+              lastUpdated={lastUpdated}
             />
             <ExchangeRateCard
               title="Tasa de Euro BCV"
               currencyFrom="EUR"
               currencyTo="VES"
-              rate={euroRate} // Usa la tasa obtenida
-              lastUpdated={lastUpdated} // Usa la fecha obtenida
+              rate={euroBcvRate}
+              lastUpdated={lastUpdated}
             />
           </div>
           <div className="flex flex-col gap-4">
-            <CalculatorCard usdToVesRate={usdRate} /> {/* Pasa la tasa obtenida */}
+            <CalculatorCard usdToVesRate={usdBcvRate} />
             <ReverseCalculatorCard
-              usdToVesRate={usdRate} // Pasa la tasa obtenida
-              euroToVesRate={euroRate} // Pasa la tasa obtenida
+              usdToVesRate={usdBcvRate}
+              euroToVesRate={euroBcvRate}
             />
           </div>
         </div>
       </main>
-      <MadeWithDyad />
+      {/* <MadeWithDyad /> */}
     </div>
   );
 }

@@ -1,61 +1,66 @@
 "use server";
 
-import { format, parse } from 'date-fns'; // Importa 'parse' para analizar la fecha
-import { es } from 'date-fns/locale'; // Importa el locale español para date-fns
+import { format, parse } from 'date-fns';
+import { es } from 'date-fns/locale';
 
-export async function getBcvRates() {
+export async function getExchangeRates() { // Renombrada la función
   try {
-    // Realiza la solicitud a la API de PyDolarVe para el dólar (endpoint tipo-cambio). Revalida cada hora.
-    const usdResponse = await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd', { next: { revalidate: 3600 } });
-    // Realiza la solicitud a la API de PyDolarVe para el euro (endpoint tipo-cambio). Revalida cada hora.
-    const euroResponse = await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=eur', { next: { revalidate: 3600 } });
+    // Realiza la solicitud a la API de PyDolarVe para el dólar BCV
+    const usdBcvResponse = await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd', { next: { revalidate: 3600 } });
+    // Realiza la solicitud a la API de PyDolarVe para el euro BCV
+    const euroBcvResponse = await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=eur', { next: { revalidate: 3600 } });
+    // Realiza la solicitud a la API de PyDolarVe para el dólar Binance
+    const usdBinanceResponse = await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd&exchange=binance', { next: { revalidate: 3600 } });
 
-    if (!usdResponse.ok) {
-      throw new Error(`Failed to fetch USD rate from API: ${usdResponse.status} ${usdResponse.statusText}`);
+    if (!usdBcvResponse.ok) {
+      throw new Error(`Failed to fetch USD BCV rate from API: ${usdBcvResponse.status} ${usdBcvResponse.statusText}`);
     }
-    if (!euroResponse.ok) {
-      throw new Error(`Failed to fetch EUR rate from API: ${euroResponse.status} ${euroResponse.statusText}`);
+    if (!euroBcvResponse.ok) {
+      throw new Error(`Failed to fetch EUR BCV rate from API: ${euroBcvResponse.status} ${euroBcvResponse.statusText}`);
+    }
+    if (!usdBinanceResponse.ok) {
+      throw new Error(`Failed to fetch USD Binance rate from API: ${usdBinanceResponse.status} ${usdBinanceResponse.statusText}`);
     }
 
-    const usdData = await usdResponse.json();
-    const euroData = await euroResponse.json();
+    const usdBcvData = await usdBcvResponse.json();
+    const euroBcvData = await euroBcvResponse.json();
+    const usdBinanceData = await usdBinanceResponse.json();
 
-    // Acceder al precio directamente para el dólar, ya que la respuesta es plana
-    const usdRate = parseFloat(usdData.price);
-    // Acceder al precio directamente para el euro, ya que la respuesta es plana
-    const euroRate = parseFloat(euroData.price);
+    const usdBcvRate = parseFloat(usdBcvData.price);
+    const euroBcvRate = parseFloat(euroBcvData.price);
+    const usdBinanceRate = parseFloat(usdBinanceData.price); // Nueva tasa de Binance
 
     let lastUpdated: string;
     try {
-      // Usar la fecha de última actualización del USD, que está en un formato más fácil de parsear.
-      // Ejemplo de formato de la API: "11/07/2025, 12:00 AM"
-      const dateString = usdData.last_update;
+      // Usar la fecha de última actualización del USD BCV para todas las tarjetas por consistencia
+      const dateString = usdBcvData.last_update;
       const parsedDate = parse(dateString, "dd/MM/yyyy, hh:mm a", new Date(), { locale: es });
-      // Cambiado el formato de salida para usar hh:mm a (12 horas con AM/PM)
       lastUpdated = "Última Actualización: " + format(parsedDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
     } catch (dateError) {
       console.error("Error formatting date from API:", dateError);
       lastUpdated = "Última Actualización: Fecha no disponible";
     }
 
-    // Validar que las tasas sean números válidos
-    if (isNaN(usdRate) || isNaN(euroRate)) {
+    // Validar que todas las tasas sean números válidos
+    if (isNaN(usdBcvRate) || isNaN(euroBcvRate) || isNaN(usdBinanceRate)) {
       console.warn("API returned non-numeric rates. Using fallback values.");
       return {
-        usdRate: 0,
-        euroRate: 0,
+        usdBcvRate: 0,
+        euroBcvRate: 0,
+        usdBinanceRate: 0, // Fallback para Binance
         lastUpdated: "Última Actualización: Datos no válidos de la API",
       };
     }
 
-    console.log("Tasas obtenidas de PyDolarVe API:", { usdRate, euroRate, lastUpdated });
-    return { usdRate, euroRate, lastUpdated };
+    console.log("Tasas obtenidas de PyDolarVe API:", { usdBcvRate, euroBcvRate, usdBinanceRate, lastUpdated });
+    return { usdBcvRate, euroBcvRate, usdBinanceRate, lastUpdated }; // Retorna la nueva tasa
 
   } catch (error: any) {
     console.error("Error al obtener datos de la API de PyDolarVe:", error);
     return {
-      usdRate: 0,
-      euroRate: 0,
+      usdBcvRate: 0,
+      euroBcvRate: 0,
+      usdBinanceRate: 0, // Fallback para Binance
       lastUpdated: `Última Actualización: Error de conexión: ${error.message || 'No se pudo conectar a la API.'}`,
     };
   }
