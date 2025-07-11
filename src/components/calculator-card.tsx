@@ -54,7 +54,7 @@ export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
             type="text"
             value={usdAmount}
             onChange={handleInputChange}
-            className="mt-2 bg-white/20 border-white/30 text-card-foreground placeholder:text-card-foreground/70 focus:ring-card-foreground focus:border-card-foreground"
+            className="mt-2 bg-white border-input text-card-foreground placeholder:text-muted-foreground focus:ring-primary focus:border-primary"
             placeholder="0.00"
           />
         </div>
