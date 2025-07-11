@@ -5,8 +5,8 @@ import { es } from 'date-fns/locale'; // Importa el locale español para date-fn
 
 export async function getBcvRates() {
   try {
-    // Realiza la solicitud a la API de PyDolarVe para el dólar BCV. Revalida cada hora.
-    const usdResponse = await fetch('https://pydolarve.org/api/v2/dollar?page=bcv', { next: { revalidate: 3600 } });
+    // Realiza la solicitud a la API de PyDolarVe para el dólar (endpoint tipo-cambio). Revalida cada hora.
+    const usdResponse = await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=usd', { next: { revalidate: 3600 } });
     // Realiza la solicitud a la API de PyDolarVe para el euro (endpoint tipo-cambio). Revalida cada hora.
     const euroResponse = await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=eur', { next: { revalidate: 3600 } });
 
@@ -20,22 +20,16 @@ export async function getBcvRates() {
     const usdData = await usdResponse.json();
     const euroData = await euroResponse.json();
 
-    // Acceder a los datos específicos del monitor 'usd' para el dólar
-    const usdMonitor = usdData.monitors.usd;
-
-    if (!usdMonitor) {
-      throw new Error("Could not find USD monitor data in API response.");
-    }
-
-    const usdRate = parseFloat(usdMonitor.price);
+    // Acceder al precio directamente para el dólar, ya que la respuesta es plana
+    const usdRate = parseFloat(usdData.price);
     // Acceder al precio directamente para el euro, ya que la respuesta es plana
     const euroRate = parseFloat(euroData.price);
 
     let lastUpdated: string;
     try {
-      // Usar la fecha de última actualización del monitor USD, que está en un formato más fácil de parsear.
+      // Usar la fecha de última actualización del USD, que está en un formato más fácil de parsear.
       // Ejemplo de formato de la API: "11/07/2025, 12:00 AM"
-      const dateString = usdMonitor.last_update;
+      const dateString = usdData.last_update;
       const parsedDate = parse(dateString, "dd/MM/yyyy, hh:mm a", new Date(), { locale: es });
       lastUpdated = format(parsedDate, "dd 'de' MMMM 'de' yyyy, HH:mm 'VET'", { locale: es });
     } catch (dateError) {
