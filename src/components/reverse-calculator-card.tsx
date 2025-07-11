@@ -14,7 +14,7 @@ export function ReverseCalculatorCard({
   usdToVesRate,
   euroToVesRate,
 }: ReverseCalculatorCardProps) {
-  const [vesAmount, setVesAmount] = useState<string>("1000");
+  const [vesAmount, setVesAmount] = useState<string>("1"); // Cambiado de "1000" a "1"
   const [usdEquivalent, setUsdEquivalent] = useState<string>("");
   const [euroEquivalent, setEuroEquivalent] = useState<string>("");
 

@@ -10,7 +10,7 @@ interface CalculatorCardProps {
 }
 
 export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
-  const [usdAmount, setUsdAmount] = useState<string>("10");
+  const [usdAmount, setUsdAmount] = useState<string>("1"); // Cambiado de "10" a "1"
   const [vesAmount, setVesAmount] = useState<string>("");
 
   useEffect(() => {
