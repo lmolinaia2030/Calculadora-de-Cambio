@@ -16,24 +16,42 @@ export async function getBcvRates() {
     let euroRate: number | null = null;
     let lastUpdated: string | null = null;
 
-    // Intenta encontrar los elementos específicos por sus IDs o clases comunes en la página del BCV
-    const usdElement = root.querySelector('#dolar strong');
-    const euroElement = root.querySelector('#euro strong');
-    const dateElement = root.querySelector('.date-display-single');
+    // Intento 1: Selectores específicos por ID (si la estructura es estable)
+    const usdElementById = root.querySelector('#dolar strong');
+    const euroElementById = root.querySelector('#euro strong');
+    const dateElementById = root.querySelector('.date-display-single');
 
-    if (usdElement) {
-      usdRate = parseFloat(usdElement.text.trim().replace(',', '.'));
+    if (usdElementById) {
+      usdRate = parseFloat(usdElementById.text.trim().replace(',', '.'));
+    }
+    if (euroElementById) {
+      euroRate = parseFloat(euroElementById.text.trim().replace(',', '.'));
+    }
+    if (dateElementById) {
+      lastUpdated = dateElementById.text.trim();
     }
 
-    if (euroElement) {
-      euroRate = parseFloat(euroElement.text.trim().replace(',', '.'));
+    // Intento 2: Búsqueda más general si los IDs específicos no funcionan, buscando por clases comunes
+    if (usdRate === null || euroRate === null) {
+      const currencyItems = root.querySelectorAll('.currency-item'); // Clase común para bloques de moneda
+      for (const item of currencyItems) {
+        const textContent = item.text;
+        const strongValue = item.querySelector('strong')?.text.trim().replace(',', '.');
+
+        if (strongValue) {
+          const rate = parseFloat(strongValue);
+          if (!isNaN(rate)) {
+            if (textContent.includes('USD') && usdRate === null) {
+              usdRate = rate;
+            } else if (textContent.includes('EUR') && euroRate === null) {
+              euroRate = rate;
+            }
+          }
+        }
+      }
     }
 
-    if (dateElement) {
-      lastUpdated = dateElement.text.trim();
-    }
-
-    // Fallback: Si los selectores específicos no funcionan, intenta buscar en todo el texto de la página
+    // Intento 3: Fallback a expresiones regulares en todo el texto de la página (último recurso)
     if (usdRate === null || euroRate === null || lastUpdated === null) {
         const pageText = root.text;
 
@@ -53,20 +71,21 @@ export async function getBcvRates() {
         }
     }
 
-    // Si aún no se encuentran los datos, usa valores predeterminados y registra una advertencia
+    // Asegurarse de que los valores no sean nulos antes de devolverlos
     if (usdRate === null || euroRate === null || lastUpdated === null) {
-      console.warn("Could not find all BCV rates or date. Using fallback values.");
+      console.warn("No se pudieron encontrar todas las tasas o la fecha del BCV. Usando valores de respaldo.");
       return {
-        usdRate: 0, // Valor de respaldo
-        euroRate: 0, // Valor de respaldo
-        lastUpdated: "Fecha no disponible",
+        usdRate: usdRate || 0,
+        euroRate: euroRate || 0,
+        lastUpdated: lastUpdated || "Fecha no disponible",
       };
     }
 
+    console.log("Tasas BCV obtenidas:", { usdRate, euroRate, lastUpdated }); // Log para depuración
     return { usdRate, euroRate, lastUpdated };
 
   } catch (error) {
-    console.error("Error fetching or parsing BCV data:", error);
+    console.error("Error al obtener o analizar los datos del BCV:", error);
     // En caso de error, devuelve valores predeterminados para que la aplicación no falle
     return {
       usdRate: 0,
