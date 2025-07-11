@@ -75,12 +75,11 @@ export async function getExchangeRates() {
 
     let lastUpdated: string;
     try {
-      // Usar la fecha de última actualización del USD BCV para todas las tarjetas por consistencia
-      const dateString = usdBcvData.last_update;
-      const parsedDate = parse(dateString, "dd/MM/yyyy, hh:mm a", new Date(), { locale: es });
-      lastUpdated = "Última Actualización: " + format(parsedDate, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
+      // Usar la fecha y hora actual del servidor para la última actualización
+      const now = new Date();
+      lastUpdated = "Última Actualización: " + format(now, "dd 'de' MMMM 'de' yyyy, hh:mm a", { locale: es });
     } catch (dateError) {
-      console.error("Error formatting date from API:", dateError);
+      console.error("Error formatting current date:", dateError);
       lastUpdated = "Última Actualización: Fecha no disponible";
     }
 
