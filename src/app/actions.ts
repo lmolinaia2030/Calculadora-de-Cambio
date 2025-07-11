@@ -1,98 +1,59 @@
 "use server";
 
-import { parse } from 'node-html-parser';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale'; // Importa el locale español para date-fns
 
 export async function getBcvRates() {
   try {
-    // Realiza la solicitud a la página del BCV. Revalida cada hora para obtener datos actualizados.
-    const response = await fetch('https://www.bcv.org.ve/', { next: { revalidate: 3600 } });
-    if (!response.ok) {
-      // Esto maneja errores HTTP (ej. 404, 500)
-      throw new Error(`Failed to fetch BCV data: ${response.status} ${response.statusText}`);
-    }
-    const html = await response.text();
-    const root = parse(html);
+    // Realiza la solicitud a la API de PyDolarVe para el dólar. Revalida cada hora.
+    const usdResponse = await fetch('https://pydolarve.vercel.app/api/v2/dollar', { next: { revalidate: 3600 } });
+    // Realiza la solicitud a la API de PyDolarVe para el euro. Revalida cada hora.
+    const euroResponse = await fetch('https://pydolarve.vercel.app/api/v2/euro', { next: { revalidate: 3600 } });
 
-    let usdRate: number | null = null;
-    let euroRate: number | null = null;
-    let lastUpdated: string | null = null;
-
-    // Intento 1: Selectores específicos por ID (si la estructura es estable)
-    const usdElementById = root.querySelector('#dolar strong');
-    const euroElementById = root.querySelector('#euro strong');
-    const dateElementById = root.querySelector('.date-display-single');
-
-    if (usdElementById) {
-      usdRate = parseFloat(usdElementById.text.trim().replace(',', '.'));
+    if (!usdResponse.ok) {
+      throw new Error(`Failed to fetch USD rate from API: ${usdResponse.status} ${usdResponse.statusText}`);
     }
-    if (euroElementById) {
-      euroRate = parseFloat(euroElementById.text.trim().replace(',', '.'));
-    }
-    if (dateElementById) {
-      lastUpdated = dateElementById.text.trim();
+    if (!euroResponse.ok) {
+      throw new Error(`Failed to fetch EUR rate from API: ${euroResponse.status} ${euroResponse.statusText}`);
     }
 
-    // Intento 2: Búsqueda más general si los IDs específicos no funcionan, buscando por clases comunes
-    if (usdRate === null || euroRate === null) {
-      const currencyItems = root.querySelectorAll('.currency-item'); // Clase común para bloques de moneda
-      for (const item of currencyItems) {
-        const textContent = item.text;
-        const strongValue = item.querySelector('strong')?.text.trim().replace(',', '.');
+    const usdData = await usdResponse.json();
+    const euroData = await euroResponse.json();
 
-        if (strongValue) {
-          const rate = parseFloat(strongValue);
-          if (!isNaN(rate)) {
-            if (textContent.includes('USD') && usdRate === null) {
-              usdRate = rate;
-            } else if (textContent.includes('EUR') && euroRate === null) {
-              euroRate = rate;
-            }
-          }
-        }
-      }
+    const usdRate = parseFloat(usdData.price);
+    const euroRate = parseFloat(euroData.price);
+
+    // La API devuelve la fecha en formato ISO 8601 (ej. "2024-07-11T17:00:00Z").
+    // La formateamos para una visualización amigable.
+    let lastUpdated: string;
+    try {
+      // Asumimos que ambas tasas tienen la misma fecha de última actualización o tomamos la del USD.
+      const date = new Date(usdData.last_update);
+      lastUpdated = format(date, "dd 'de' MMMM 'de' yyyy, HH:mm 'VET'", { locale: es });
+    } catch (dateError) {
+      console.error("Error formatting date from API:", dateError);
+      lastUpdated = "Fecha no disponible";
     }
 
-    // Intento 3: Fallback a expresiones regulares en todo el texto de la página (último recurso)
-    if (usdRate === null || euroRate === null || lastUpdated === null) {
-        const pageText = root.text;
-
-        const usdMatch = pageText.match(/\$ USD\s*([\d.,]+)/);
-        if (usdMatch && usdMatch[1]) {
-            usdRate = parseFloat(usdMatch[1].replace(',', '.'));
-        }
-
-        const euroMatch = pageText.match(/€ EUR\s*([\d.,]+)/);
-        if (euroMatch && euroMatch[1]) {
-            euroRate = parseFloat(euroMatch[1].replace(',', '.'));
-        }
-
-        const dateMatch = pageText.match(/Fecha Valor:\s*(.+)/);
-        if (dateMatch && dateMatch[1]) {
-            lastUpdated = dateMatch[1].trim();
-        }
-    }
-
-    // Asegurarse de que los valores no sean nulos antes de devolverlos
-    if (usdRate === null || euroRate === null || lastUpdated === null) {
-      console.warn("No se pudieron encontrar todas las tasas o la fecha del BCV. Usando valores de respaldo.");
+    // Validar que las tasas sean números válidos
+    if (isNaN(usdRate) || isNaN(euroRate)) {
+      console.warn("API returned non-numeric rates. Using fallback values.");
       return {
-        usdRate: usdRate || 0,
-        euroRate: euroRate || 0,
-        lastUpdated: lastUpdated || "Fecha no disponible",
+        usdRate: 0,
+        euroRate: 0,
+        lastUpdated: "Datos no válidos de la API",
       };
     }
 
-    console.log("Tasas BCV obtenidas:", { usdRate, euroRate, lastUpdated }); // Log para depuración
+    console.log("Tasas obtenidas de PyDolarVe API:", { usdRate, euroRate, lastUpdated });
     return { usdRate, euroRate, lastUpdated };
 
-  } catch (error: any) { // Usamos 'any' para acceder a la propiedad 'message' de forma segura
-    console.error("Error al obtener o analizar los datos del BCV:", error);
-    // En caso de error de red (TypeError: fetch failed), el error.message será más descriptivo.
-    // Devolvemos un mensaje de error más útil para el usuario.
+  } catch (error: any) {
+    console.error("Error al obtener datos de la API de PyDolarVe:", error);
     return {
       usdRate: 0,
       euroRate: 0,
-      lastUpdated: `Error de conexión: ${error.message || 'No se pudo conectar al BCV.'}`,
+      lastUpdated: `Error de conexión: ${error.message || 'No se pudo conectar a la API.'}`,
     };
   }
 }
