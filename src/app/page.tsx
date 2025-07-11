@@ -1,6 +1,7 @@
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { ExchangeRateCard } from "@/components/exchange-rate-card";
 import { CalculatorCard } from "@/components/calculator-card";
+import { ReverseCalculatorCard } from "@/components/reverse-calculator-card";
 
 export default function Home() {
   // Tasas de ejemplo, idealmente vendrían de una API
@@ -31,7 +32,13 @@ export default function Home() {
               lastUpdated={lastUpdatedTime}
             />
           </div>
-          <CalculatorCard usdToVesRate={dolarBcvRate} />
+          <div className="flex flex-col gap-4">
+            <CalculatorCard usdToVesRate={dolarBcvRate} />
+            <ReverseCalculatorCard
+              usdToVesRate={dolarBcvRate}
+              euroToVesRate={euroRate}
+            />
+          </div>
         </div>
       </main>
       <MadeWithDyad />
