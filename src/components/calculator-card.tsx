@@ -40,7 +40,7 @@ export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
   };
 
   return (
-    <Card className="w-full max-w-md bg-gradient-card-blue text-white rounded-xl shadow-lg">
+    <Card className="w-full max-w-md bg-gradient-card-blue text-white rounded-xl shadow-lg border-none">
       <CardHeader className="pb-2">
         <CardTitle className="text-2xl font-bold">Calculadora</CardTitle>
       </CardHeader>
@@ -54,7 +54,7 @@ export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
             type="text"
             value={usdAmount}
             onChange={handleInputChange}
-            className="mt-2 bg-white border-input text-card-foreground placeholder:text-muted-foreground focus:ring-primary focus:border-primary"
+            className="mt-2 bg-white border-none text-card-foreground placeholder:text-muted-foreground focus:ring-primary focus:border-primary"
             placeholder="0.00"
           />
         </div>

@@ -39,7 +39,7 @@ export function ReverseCalculatorCard({
       setDisplayUsdEquivalent(`$${calculatedUsd.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`);
       setDisplayEuroEquivalent(`€${calculatedEuro.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`);
     } else {
-      setDisplayUsdEquivalent("$0.0000");
+      setDisplayEuroEquivalent("$0.0000");
       setDisplayEuroEquivalent("€0.0000");
     }
   }, [vesAmount, usdToVesRate, euroToVesRate]);
@@ -53,7 +53,7 @@ export function ReverseCalculatorCard({
   };
 
   return (
-    <Card className="w-full max-w-md bg-gradient-card-blue text-white rounded-xl shadow-lg">
+    <Card className="w-full max-w-md bg-gradient-card-blue text-white rounded-xl shadow-lg border-none">
       <CardHeader className="pb-2">
         <CardTitle className="text-2xl font-bold">Calculadora Inversa</CardTitle>
       </CardHeader>
@@ -67,7 +67,7 @@ export function ReverseCalculatorCard({
             type="text"
             value={vesAmount}
             onChange={handleInputChange}
-            className="mt-2 bg-white border-input text-card-foreground placeholder:text-muted-foreground focus:ring-primary focus:border-primary"
+            className="mt-2 bg-white border-none text-card-foreground placeholder:text-muted-foreground focus:ring-primary focus:border-primary"
             placeholder="0,00"
           />
         </div>
