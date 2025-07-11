@@ -7,7 +7,8 @@ export async function getBcvRates() {
     // Realiza la solicitud a la página del BCV. Revalida cada hora para obtener datos actualizados.
     const response = await fetch('https://www.bcv.org.ve/', { next: { revalidate: 3600 } });
     if (!response.ok) {
-      throw new Error(`Failed to fetch BCV data: ${response.statusText}`);
+      // Esto maneja errores HTTP (ej. 404, 500)
+      throw new Error(`Failed to fetch BCV data: ${response.status} ${response.statusText}`);
     }
     const html = await response.text();
     const root = parse(html);
@@ -84,13 +85,14 @@ export async function getBcvRates() {
     console.log("Tasas BCV obtenidas:", { usdRate, euroRate, lastUpdated }); // Log para depuración
     return { usdRate, euroRate, lastUpdated };
 
-  } catch (error) {
+  } catch (error: any) { // Usamos 'any' para acceder a la propiedad 'message' de forma segura
     console.error("Error al obtener o analizar los datos del BCV:", error);
-    // En caso de error, devuelve valores predeterminados para que la aplicación no falle
+    // En caso de error de red (TypeError: fetch failed), el error.message será más descriptivo.
+    // Devolvemos un mensaje de error más útil para el usuario.
     return {
       usdRate: 0,
       euroRate: 0,
-      lastUpdated: "Error al cargar la fecha",
+      lastUpdated: `Error de conexión: ${error.message || 'No se pudo conectar al BCV.'}`,
     };
   }
 }
