@@ -5,15 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-interface ReverseCalculatorCardProps {
+interface CalculadoraBsToBCVProps {
   usdToVesRate: number;
   euroToVesRate: number;
 }
 
-export function ReverseCalculatorCard({
+export function CalculadoraBsToBCV({
   usdToVesRate,
   euroToVesRate,
-}: ReverseCalculatorCardProps) {
+}: CalculadoraBsToBCVProps) {
   const initialVesAmount = "0";
   const [vesAmount, setVesAmount] = useState<string>(initialVesAmount);
 
@@ -39,7 +39,7 @@ export function ReverseCalculatorCard({
       setDisplayUsdEquivalent(`$${calculatedUsd.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`);
       setDisplayEuroEquivalent(`€${calculatedEuro.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`);
     } else {
-      setDisplayEuroEquivalent("$0.0000");
+      setDisplayUsdEquivalent("$0.0000");
       setDisplayEuroEquivalent("€0.0000");
     }
   }, [vesAmount, usdToVesRate, euroToVesRate]);
@@ -55,7 +55,7 @@ export function ReverseCalculatorCard({
   return (
     <Card className="w-full max-w-md bg-gradient-card-blue text-white rounded-xl shadow-lg border-none">
       <CardHeader className="pb-2">
-        <CardTitle className="text-2xl font-bold">Calculadora Inversa</CardTitle>
+        <CardTitle className="text-2xl font-bold">Calculadora Bs a BCV</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div>

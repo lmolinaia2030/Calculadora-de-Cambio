@@ -1,7 +1,7 @@
 import { MadeWithDyad } from "@/components/made-with-dyad";
 import { ExchangeRateCard } from "@/components/exchange-rate-card";
 import { CalculatorCard } from "@/components/calculator-card";
-import { ReverseCalculatorCard } from "@/components/reverse-calculator-card";
+import { CalculadoraBsToBCV } from "@/components/calculadora-bs-to-bcv"; // Importación actualizada
 import { getExchangeRates } from "@/app/actions";
 
 export default async function Home() {
@@ -40,9 +40,9 @@ export default async function Home() {
           <div className="flex flex-col gap-4">
             <CalculatorCard
               usdToVesRate={usdBcvRate}
-              usdBinanceRate={usdBinanceRate} // Pasando la tasa de Binance
+              usdBinanceRate={usdBinanceRate}
             />
-            <ReverseCalculatorCard
+            <CalculadoraBsToBCV // Uso del componente renombrado
               usdToVesRate={usdBcvRate}
               euroToVesRate={euroBcvRate}
             />
