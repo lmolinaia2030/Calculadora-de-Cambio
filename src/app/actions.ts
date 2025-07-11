@@ -64,9 +64,8 @@ export async function getExchangeRates() {
         .filter((price: number) => !isNaN(price));
 
       if (prices.length > 0) {
-        // Calcular el promedio de los precios, especificando los tipos para 'acc' y 'price'
-        const sum = prices.reduce((acc: number, price: number) => acc + price, 0);
-        usdBinanceRate = sum / prices.length;
+        // Calcular el precio más alto
+        usdBinanceRate = Math.max(...prices);
       } else {
         usdBinanceRate = 0; // No se encontraron precios válidos
       }
