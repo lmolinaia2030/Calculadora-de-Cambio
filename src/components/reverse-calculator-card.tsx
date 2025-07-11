@@ -14,18 +14,33 @@ export function ReverseCalculatorCard({
   usdToVesRate,
   euroToVesRate,
 }: ReverseCalculatorCardProps) {
-  const [vesAmount, setVesAmount] = useState<string>("0"); // Cambiado de "1" a "0"
-  const [usdEquivalent, setUsdEquivalent] = useState<string>("");
-  const [euroEquivalent, setEuroEquivalent] = useState<string>("");
+  const initialVesAmount = "0";
+  const [vesAmount, setVesAmount] = useState<string>(initialVesAmount);
+
+  // Calcular los valores iniciales en USD y EUR para el renderizado del servidor
+  const initialRawUsdEquivalent = parseFloat(initialVesAmount) / usdToVesRate;
+  const initialRawEuroEquivalent = parseFloat(initialVesAmount) / euroToVesRate;
+
+  // Inicializar los estados de visualización con un formato no dependiente de la configuración regional para el servidor
+  const [displayUsdEquivalent, setDisplayUsdEquivalent] = useState<string>(
+    isNaN(initialRawUsdEquivalent) ? "$0.0000" : `$${initialRawUsdEquivalent.toFixed(4)}`
+  );
+  const [displayEuroEquivalent, setDisplayEuroEquivalent] = useState<string>(
+    isNaN(initialRawEuroEquivalent) ? "€0.0000" : `€${initialRawEuroEquivalent.toFixed(4)}`
+  );
 
   useEffect(() => {
     const ves = parseFloat(vesAmount);
     if (!isNaN(ves)) {
-      setUsdEquivalent((ves / usdToVesRate).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
-      setEuroEquivalent((ves / euroToVesRate).toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
+      const calculatedUsd = ves / usdToVesRate;
+      const calculatedEuro = ves / euroToVesRate;
+
+      // Actualizar displayUsdEquivalent y displayEuroEquivalent con el formato específico de la configuración regional en el cliente
+      setDisplayUsdEquivalent(`$${calculatedUsd.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`);
+      setDisplayEuroEquivalent(`€${calculatedEuro.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`);
     } else {
-      setUsdEquivalent("");
-      setEuroEquivalent("");
+      setDisplayUsdEquivalent("$0.0000");
+      setDisplayEuroEquivalent("€0.0000");
     }
   }, [vesAmount, usdToVesRate, euroToVesRate]);
 
@@ -61,7 +76,7 @@ export function ReverseCalculatorCard({
             equivalente en Dólares:
           </Label>
           <div className="text-4xl font-extrabold mt-2">
-            {usdEquivalent ? `$${usdEquivalent}` : "$0.0000"}
+            {displayUsdEquivalent}
           </div>
         </div>
         <div>
@@ -69,7 +84,7 @@ export function ReverseCalculatorCard({
             equivalente en Euros:
           </Label>
           <div className="text-4xl font-extrabold mt-2">
-            {euroEquivalent ? `€${euroEquivalent}` : "€0.0000"}
+            {displayEuroEquivalent}
           </div>
         </div>
       </CardContent>

@@ -10,15 +10,24 @@ interface CalculatorCardProps {
 }
 
 export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
-  const [usdAmount, setUsdAmount] = useState<string>("1"); // Cambiado de "10" a "1"
-  const [vesAmount, setVesAmount] = useState<string>("");
+  const initialUsdAmount = "1";
+  const [usdAmount, setUsdAmount] = useState<string>(initialUsdAmount);
+
+  // Calcular el valor inicial en Bolívares para el renderizado del servidor
+  const initialRawVesAmount = parseFloat(initialUsdAmount) * usdToVesRate;
+  // Inicializar el estado de visualización con un formato no dependiente de la configuración regional para el servidor
+  const [displayVesAmount, setDisplayVesAmount] = useState<string>(
+    isNaN(initialRawVesAmount) ? "0,0000" : initialRawVesAmount.toFixed(4).replace('.', ',')
+  );
 
   useEffect(() => {
     const usd = parseFloat(usdAmount);
     if (!isNaN(usd)) {
-      setVesAmount((usd * usdToVesRate).toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
+      const calculatedRaw = usd * usdToVesRate;
+      // Actualizar displayVesAmount con el formato específico de la configuración regional en el cliente
+      setDisplayVesAmount(calculatedRaw.toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
     } else {
-      setVesAmount("");
+      setDisplayVesAmount("0,0000");
     }
   }, [usdAmount, usdToVesRate]);
 
@@ -54,7 +63,7 @@ export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
             equivalente en Bolívares:
           </Label>
           <div className="text-4xl font-extrabold mt-2">
-            {vesAmount || "0,0000"}
+            {displayVesAmount}
           </div>
         </div>
       </CardContent>
