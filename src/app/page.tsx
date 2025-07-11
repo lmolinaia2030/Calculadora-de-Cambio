@@ -2,10 +2,10 @@ import { MadeWithDyad } from "@/components/made-with-dyad";
 import { ExchangeRateCard } from "@/components/exchange-rate-card";
 import { CalculatorCard } from "@/components/calculator-card";
 import { ReverseCalculatorCard } from "@/components/reverse-calculator-card";
-import { getExchangeRates } from "@/app/actions"; // Importa la Server Action actualizada
+import { getExchangeRates } from "@/app/actions";
 
 export default async function Home() {
-  const { usdBcvRate, euroBcvRate, usdBinanceRate, lastUpdated } = await getExchangeRates(); // Llama a la Server Action y desestructura la nueva tasa
+  const { usdBcvRate, euroBcvRate, usdBinanceRate, lastUpdated } = await getExchangeRates();
 
   return (
     <div className="grid grid-rows-[1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -23,7 +23,7 @@ export default async function Home() {
               lastUpdated={lastUpdated}
             />
             <ExchangeRateCard
-              title="Tasa de Dólar Binance" // Nueva tarjeta para Binance
+              title="Tasa de Dólar Binance"
               currencyFrom="USD"
               currencyTo="VES"
               rate={usdBinanceRate}
@@ -38,7 +38,10 @@ export default async function Home() {
             />
           </div>
           <div className="flex flex-col gap-4">
-            <CalculatorCard usdToVesRate={usdBcvRate} />
+            <CalculatorCard
+              usdToVesRate={usdBcvRate}
+              usdBinanceRate={usdBinanceRate} // Pasando la tasa de Binance
+            />
             <ReverseCalculatorCard
               usdToVesRate={usdBcvRate}
               euroToVesRate={euroBcvRate}

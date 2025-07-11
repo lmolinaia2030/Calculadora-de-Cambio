@@ -6,30 +6,40 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface CalculatorCardProps {
-  usdToVesRate: number;
+  usdToVesRate: number; // Tasa BCV
+  usdBinanceRate: number; // Nueva prop para la tasa de Binance
 }
 
-export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
+export function CalculatorCard({ usdToVesRate, usdBinanceRate }: CalculatorCardProps) {
   const initialUsdAmount = "1";
   const [usdAmount, setUsdAmount] = useState<string>(initialUsdAmount);
 
-  // Calcular el valor inicial en Bolívares para el renderizado del servidor
-  const initialRawVesAmount = parseFloat(initialUsdAmount) * usdToVesRate;
-  // Inicializar el estado de visualización con un formato no dependiente de la configuración regional para el servidor
-  const [displayVesAmount, setDisplayVesAmount] = useState<string>(
-    isNaN(initialRawVesAmount) ? "0,0000" : initialRawVesAmount.toFixed(4).replace('.', ',')
+  // Calcular los valores iniciales en Bolívares para el renderizado del servidor
+  const initialRawVesBcvAmount = parseFloat(initialUsdAmount) * usdToVesRate;
+  const initialRawVesBinanceAmount = parseFloat(initialUsdAmount) * usdBinanceRate;
+
+  // Inicializar los estados de visualización con un formato no dependiente de la configuración regional para el servidor
+  const [displayVesBcvAmount, setDisplayVesBcvAmount] = useState<string>(
+    isNaN(initialRawVesBcvAmount) ? "0,0000" : initialRawVesBcvAmount.toFixed(4).replace('.', ',')
+  );
+  const [displayVesBinanceAmount, setDisplayVesBinanceAmount] = useState<string>(
+    isNaN(initialRawVesBinanceAmount) ? "0,0000" : initialRawVesBinanceAmount.toFixed(4).replace('.', ',')
   );
 
   useEffect(() => {
     const usd = parseFloat(usdAmount);
     if (!isNaN(usd)) {
-      const calculatedRaw = usd * usdToVesRate;
-      // Actualizar displayVesAmount con el formato específico de la configuración regional en el cliente
-      setDisplayVesAmount(calculatedRaw.toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
+      const calculatedRawBcv = usd * usdToVesRate;
+      const calculatedRawBinance = usd * usdBinanceRate;
+
+      // Actualizar displayVesBcvAmount y displayVesBinanceAmount con el formato específico de la configuración regional en el cliente
+      setDisplayVesBcvAmount(calculatedRawBcv.toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
+      setDisplayVesBinanceAmount(calculatedRawBinance.toLocaleString('es-VE', { minimumFractionDigits: 4, maximumFractionDigits: 4 }));
     } else {
-      setDisplayVesAmount("0,0000");
+      setDisplayVesBcvAmount("0,0000");
+      setDisplayVesBinanceAmount("0,0000");
     }
-  }, [usdAmount, usdToVesRate]);
+  }, [usdAmount, usdToVesRate, usdBinanceRate]); // Recalcular cuando cualquiera de estas props cambie
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -60,10 +70,18 @@ export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
         </div>
         <div>
           <Label className="text-lg">
-            equivalente en Bolívares:
+            equivalente en Bolívares (BCV):
           </Label>
           <div className="text-4xl font-extrabold mt-2">
-            {displayVesAmount}
+            {displayVesBcvAmount}
+          </div>
+        </div>
+        <div>
+          <Label className="text-lg">
+            equivalente en Bolívares (Binance):
+          </Label>
+          <div className="text-4xl font-extrabold mt-2">
+            {displayVesBinanceAmount}
           </div>
         </div>
       </CardContent>
