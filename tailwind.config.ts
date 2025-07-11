@@ -90,6 +90,7 @@ export default {
   		},
         backgroundImage: {
             'gradient-card': 'linear-gradient(to right, hsl(var(--card-gradient-start)), hsl(var(--card-gradient-end)))',
+            'gradient-card-blue': 'linear-gradient(to right, hsl(var(--card-gradient-start-blue)), hsl(var(--card-gradient-end-blue)))', // Nuevo gradiente azul
         },
   	}
   },

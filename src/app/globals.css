@@ -51,6 +51,10 @@
 
     --card-gradient-start: 0 0% 99%; /* Gradiente de tarjeta muy claro */
     --card-gradient-end: 0 0% 97%;   /* Gradiente de tarjeta ligeramente más oscuro */
+
+    /* Nuevas variables para el gradiente azul */
+    --card-gradient-start-blue: 210 90% 60%; /* Un azul vibrante */
+    --card-gradient-end-blue: 220 80% 40%;   /* Un azul más oscuro */
   }
   .dark {
     --background: 0 0% 98%; /* Fondo muy claro para el tema oscuro también */
@@ -98,6 +102,10 @@
 
     --card-gradient-start: 0 0% 99%; /* Gradiente de tarjeta muy claro */
     --card-gradient-end: 0 0% 97%;   /* Gradiente de tarjeta ligeramente más oscuro */
+
+    /* Nuevas variables para el gradiente azul en tema oscuro */
+    --card-gradient-start-blue: 210 90% 60%;
+    --card-gradient-end-blue: 220 80% 40%;
   }
 }
 

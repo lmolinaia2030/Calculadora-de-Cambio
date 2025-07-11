@@ -40,7 +40,7 @@ export function CalculatorCard({ usdToVesRate }: CalculatorCardProps) {
   };
 
   return (
-    <Card className="w-full max-w-md bg-gradient-card text-card-foreground rounded-xl shadow-lg">
+    <Card className="w-full max-w-md bg-gradient-card-blue text-white rounded-xl shadow-lg">
       <CardHeader className="pb-2">
         <CardTitle className="text-2xl font-bold">Calculadora</CardTitle>
       </CardHeader>
