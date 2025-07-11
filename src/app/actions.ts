@@ -7,8 +7,8 @@ export async function getBcvRates() {
   try {
     // Realiza la solicitud a la API de PyDolarVe para el dólar BCV. Revalida cada hora.
     const usdResponse = await fetch('https://pydolarve.org/api/v2/dollar?page=bcv', { next: { revalidate: 3600 } });
-    // Realiza la solicitud a la API de PyDolarVe para el euro BCV. Revalida cada hora.
-    const euroResponse = await fetch('https://pydolarve.org/api/v2/euro?page=bcv', { next: { revalidate: 3600 } });
+    // Realiza la solicitud a la API de PyDolarVe para el euro (endpoint tipo-cambio). Revalida cada hora.
+    const euroResponse = await fetch('https://pydolarve.org/api/v2/tipo-cambio?currency=eur', { next: { revalidate: 3600 } });
 
     if (!usdResponse.ok) {
       throw new Error(`Failed to fetch USD rate from API: ${usdResponse.status} ${usdResponse.statusText}`);
@@ -20,16 +20,16 @@ export async function getBcvRates() {
     const usdData = await usdResponse.json();
     const euroData = await euroResponse.json();
 
-    // Acceder a los datos específicos del monitor 'usd' y 'eur'
+    // Acceder a los datos específicos del monitor 'usd' para el dólar
     const usdMonitor = usdData.monitors.usd;
-    const euroMonitor = euroData.monitors.eur;
 
-    if (!usdMonitor || !euroMonitor) {
-      throw new Error("Could not find USD or EUR monitor data in API response.");
+    if (!usdMonitor) {
+      throw new Error("Could not find USD monitor data in API response.");
     }
 
     const usdRate = parseFloat(usdMonitor.price);
-    const euroRate = parseFloat(euroMonitor.price);
+    // Acceder al precio directamente para el euro, ya que la respuesta es plana
+    const euroRate = parseFloat(euroData.price);
 
     let lastUpdated: string;
     try {
