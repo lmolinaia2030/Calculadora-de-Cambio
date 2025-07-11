@@ -38,7 +38,7 @@ export function ReverseCalculatorCard({
   };
 
   return (
-    <Card className="w-full max-w-md bg-gradient-card text-white rounded-xl shadow-lg">
+    <Card className="w-full max-w-md bg-gradient-card text-card-foreground rounded-xl shadow-lg">
       <CardHeader className="pb-2">
         <CardTitle className="text-2xl font-bold">Calculadora Inversa</CardTitle>
       </CardHeader>
@@ -52,7 +52,7 @@ export function ReverseCalculatorCard({
             type="text"
             value={vesAmount}
             onChange={handleInputChange}
-            className="mt-2 bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:ring-white focus:border-white"
+            className="mt-2 bg-white/20 border-white/30 text-card-foreground placeholder:text-card-foreground/70 focus:ring-card-foreground focus:border-card-foreground"
             placeholder="0,00"
           />
         </div>
